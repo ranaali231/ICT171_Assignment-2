@@ -1,4 +1,8 @@
 # ICT171_Assignment-2
+**Name:** Muhammad Ali  
+**Domain:** [https://foodone.xyz](https://foodone.xyz)  
+**IP:** 13.239.237.8
+
 Week 1: Launching the Server and Initial Setup.
 In week one, I started with creating an AWS account via AWS Educate and learning how to use AWS Management Console. I explored different services, then EC2 and created a virtual machine with Ubuntu Server 24.04 LTS, a stable, long term supported operating system. I opted for t2.micro, an eligible service under AWS’s free tier, with basic server settings. I created a new .pem key pair, one I would have to use on a secured basis. When creating the instance, I modified security group settings to permit incoming traffic on SSH (port 22), HTTP (port 80), and HTTPS (port 443). To ensure my instance was running, I then SSH connected into it by entering into where my .pem file was residing and entering SSH command AWS gave. I logged into my Ubuntu server. To get my environment ready, I updated system cached packages with sudo apt update then went ahead with Apache’s install with sudo apt install apache2. I checked for installation via a visit into my instance’s public IP address in a webpage, where I was welcomed with Apache’s welcome page a confirmation my web server was live and functional.
 
