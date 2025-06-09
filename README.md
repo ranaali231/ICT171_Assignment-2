@@ -15,9 +15,14 @@ Week three, I deployed a complete WordPress site on my Apache server. I switched
 Week 4: Domain Integration and HTTPS Security.
 I set up a custom domain and secured my site last week. I purchased a custom domain, named foodone.xyz, from Namecheap. I set A records in Namecheap’s control panel under Advanced DNS for mapping the root domain (@) and www subdomain to my EC2’s Elastic IP address. Back on my server, I edited Apache virtual host config in /etc/apache2/sites-available/000-default.conf to set a ServerName with my domain. I also made two additions in wp-config.php with WP_HOME & WP_SITEURL with my URL from a domain. Following an Apache restart as well as a wait for DNS propagation, my site was accessible over my domain. Lastly, I set up Certbot to activate HTTPS. Following a resolution of an initial repo issue, I was able to install Certbot with Apache plugin with ease, then executed sudo certbot --apache to obtain a free SSL certificate from Let’s Encrypt. The tool automatically configured Apache to serve HTTP on HTTPS. Testing with a visit in browsers using https://foodone.xyz presented me with a secure padlock icon—indicating that SSL was properly functional as well as my site was fully secured.
 
-**Backup Script Code And Explanation **
+
+
+
+
+**Backup Script**
 
 #!/bin/bash
+
 WEB_DIR="/var/www/html/wordpress"
 BACKUP_DIR="/home/ubuntu/website_backups"
 DB_NAME="m_ali"
