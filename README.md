@@ -15,5 +15,46 @@ Week three, I deployed a complete WordPress site on my Apache server. I switched
 Week 4: Domain Integration and HTTPS Security.
 I set up a custom domain and secured my site last week. I purchased a custom domain, named foodone.xyz, from Namecheap. I set A records in Namecheap’s control panel under Advanced DNS for mapping the root domain (@) and www subdomain to my EC2’s Elastic IP address. Back on my server, I edited Apache virtual host config in /etc/apache2/sites-available/000-default.conf to set a ServerName with my domain. I also made two additions in wp-config.php with WP_HOME & WP_SITEURL with my URL from a domain. Following an Apache restart as well as a wait for DNS propagation, my site was accessible over my domain. Lastly, I set up Certbot to activate HTTPS. Following a resolution of an initial repo issue, I was able to install Certbot with Apache plugin with ease, then executed sudo certbot --apache to obtain a free SSL certificate from Let’s Encrypt. The tool automatically configured Apache to serve HTTP on HTTPS. Testing with a visit in browsers using https://foodone.xyz presented me with a secure padlock icon—indicating that SSL was properly functional as well as my site was fully secured.
 
+**Backup Script Code And Explanation **
+#!/bin/bash
+
+WEB_DIR="/var/www/html/wordpress"
+BACKUP_DIR="/home/ubuntu/website_backups"
+DB_NAME="m_ali"
+DB_USER="m_ali"
+DB_PASS="pak@123"
+DATE=$(date +"%Y-%m-%d_%H-%M")
+LOG_FILE="$BACKUP_DIR/backup_log.txt"
+DAYS_TO_KEEP=7
+
+if [ ! -d "$BACKUP_DIR" ]; then
+    mkdir "$BACKUP_DIR"
+fi
+
+BACKUP_PATH="$BACKUP_DIR/backup-$DATE"
+mkdir "$BACKUP_PATH"
+
+echo "Backup started on $(date)" >> "$LOG_FILE"
+
+echo "Copying website files..." >> "$LOG_FILE"
+tar -czf "$BACKUP_PATH/wordpress_files.tar.gz" "$WEB_DIR"
+
+echo "Saving database..." >> "$LOG_FILE"
+mysqldump -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" > "$BACKUP_PATH/db_backup.sql"
+
+echo "Backup done! Saved in $BACKUP_PATH" >> "$LOG_FILE"
+
+echo "Cleaning up old backups..." >> "$LOG_FILE"
+find "$BACKUP_DIR" -maxdepth 1 -type d -name "backup-*" -mtime +$DAYS_TO_KEEP -exec rm -rf {} \; >> "$LOG_FILE"
+
+echo "Finished on $(date)" >> "$LOG_FILE"
+echo "------------------------------" >> "$LOG_FILE"
 
 
+**Explanation**
+
+The following is a backup script for backing up website files and MySQL database for a website using WordPress. It starts with a line declaring it uses Bash shell to run it. It sets a number of variables for use in the process. These include where website files are (/var/www/html/wordpress), where backups are stored (/home/ubuntu/website_backups), database name (m_ali), database username (m_ali), and password (pak@123). It also sets a variable as current date and time, which it uses as a prefix while naming backups so no backup would overwrite an older one. It uses a different variable as a location of a log file documenting script activity and yet a different one as how many days' backups should be retained (7 days in this script).
+
+The script then searches for a backup directory, and if it does not already have one, it creates it. Creates a new folder for this specific backup with a date as well as timestamp. Logs the date and timestamp as a start time for record-keeping in a log file. Backs up the website files. Logs, compresses the entire folder containing WordPress into a single archive file (in .tar.gz form), then moves it into the new backup folder. Once the backup file is complete, the script diligently marks the beginning database backup before using the mysqldump command to export the contents of the WordPress database into an .sql file, also in a backup folder. Having backed up the database as well as site files, the script marks backup completion alongside where it has been stored.
+
+To prevent disk space from filling up as well as declutter, the script also searches for older backups within the backup directory. It searches for any directories with a name in the format and more than 7 days old and removes them automatically. It furthermore marks as finished the time a process has completed as well as contains a divider line within its log file, separating it from other backup entries, making it more readable. The script as a whole is a great way of backing up a WordPress site on a regular basis as well as keeping backups organized.
